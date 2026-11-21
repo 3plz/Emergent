@@ -8,7 +8,7 @@ var x: int = 64;
 var root: int;
 
 ExternC(C_SquareRoot(x)) >> root;
-io.Print(root); // 8
+io.Print(root); // Prints 8, the integer square root of 64.
 
 ![C_SquareRoot] {n: int}
 #include <math.h>

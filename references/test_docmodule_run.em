@@ -6,10 +6,10 @@ a + b >> x;
 return x;
 
 #[LibraryFunction]
-arguments: {a;i8;Первый аргумент сабмодуля\ b;i8;Второй аргумент сабмодуля};
-returns: {x;i8;Результат сложения 2+2};
-description: {Складывает 2 числа, переносит \
-    Результат в функцию x затем возращает его.
+arguments: {a;i8;First addend\ b;i8;Second addend};
+returns: {x;i8;Sum of a and b};
+description: {Adds a and b, stores the result in x, \
+    and returns x.
 };
 
 -[Init]

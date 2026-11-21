@@ -1,7 +1,7 @@
 --Module main;
 
--[Init]                   // Enter Point
-mod.add(std:io);          // Preprocessor directive, добавляет содержимое нужной функции внутрь 
+-[Init] // Program entry point.
+mod.add(std:io); // Import standard I/O functions.
 io.Print("Hello World");
 return 0;
 

@@ -1,26 +1,19 @@
 --Module Docmodule;
 
-/*
- Давай представим ситуацию, ты используешь библиотеку, и тебе условно нужно посмотреть быстро короткое описание сабмодуля, его аргументы и возратный тип данных, так вот, Documentation Submodules для этого!
-/*
- 
+// Documentation submodules describe arguments, return values, and behavior.
+
 -[LibraryFunction] {a: i8, b: i8}
 var x: i8;
 a + b >> x;
 return x;
 
 #[LibraryFunction]
-arguments: {a;i8;Первый аргумент сабмодуля\ b;i8;Второй аргумент сабмодуля};
-returns: {x;i8;Результат сложения 2+2};
-description: {Складывает 2 числа, переносит \
-    Результат в функцию x затем возращает его.
+arguments: {a;i8;First addend\ b;i8;Second addend};
+returns: {x;i8;Sum of a and b};
+description: {Adds a and b, stores the result in x, \
+    and returns x.
 };
 
-// В arguments и returns формат название переменной;возрат;краткое описание, и для отделения используется \
-// В description один большой текст но \ используется для переноса строки
-// Это помогает разработчикам быстрее работать с библиотеками хотя придумывал я это не для этого.
-// Я придумал это совершенно случайно потому что думал вот создаю ЯП в эру нейросетей, надо что то сделать для этого 
-// И подумал что нейронки постоянно из-за устаревших весов могут использовать старую или опасную функцию библиотеки и неправильно
-// По этому решил добавить это что бы ИИ агенты могли сразу узнать как и что.
-// Увидеть можно это описание по использованию компиляторной комманды emc man std:io:Print (Это пример, и как ты понял, man отсылка на линукс утилиту), а так же это можно будет Увидеть
-// если разработчики IDE добавят прямую поддержку этого ну или тот кто будет писать плагин для ЯП на IDE.
+// Argument and return entries use name;type;description, separated by backslashes.
+// In descriptions, a backslash inserts a line break.
+// View this documentation with: emc man references/docmodule.em LibraryFunction

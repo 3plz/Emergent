@@ -9,7 +9,7 @@ var b: int = 3;
 var res: int;
 
 ExternC(C_MultiplyAndSum(a, b)) >> res;
-io.Print(res); // (7 * 3) + 100 = 121
+io.Print(res); // Prints 121: (7 * 3) + 100.
 
 ![C_MultiplyAndSum] {x: int, y: int}
 #include <stdio.h>

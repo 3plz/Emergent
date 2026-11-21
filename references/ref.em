@@ -1,12 +1,11 @@
 --Module ref;
 
 -[Init]
-// Сейчас я покажу то что я называю data flow 
-var x: cint = 7; // cint - Си совместимый тип int, я честно не знаю стоит ли его добавлять отдельно так, если что язык я хочу создать 100% совместимым с СИ
+// Demonstrate value transfer with the >> operator.
+var x: cint = 7; // A C-compatible integer.
 var y: cint;
-sub.add(std:io:Print); // Добавление подмодуля это sub.add 
-Print(x); // 7
+sub.add(std:io:Print); // Import the Print submodule directly.
+Print(x); // Prints 7.
 x >> y;
-Print(x); // Error: переменная отдана под y 
-Print(y); // 7
-// Что насчет стандартный поинтеров, они работают АБСОЛЮТНО идентично с Си
+Print(x); // Invalid use: x has been moved into y.
+Print(y); // Prints the transferred value: 7.
