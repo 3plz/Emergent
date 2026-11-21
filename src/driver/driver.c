@@ -26,7 +26,7 @@ bool driver_run_process(const char *file, char *const argv[], int *out_exit_code
     if (pid == 0) {
         execvp(file, argv);
         int err = errno;
-        _exit(err = ENOENT ? 127 : 126);
+        _exit(err == ENOENT ? 127 : 126);
     }
     int status = 0;
     if (waitpid(pid, &status, 0) < 0) {
