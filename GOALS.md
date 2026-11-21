@@ -133,7 +133,7 @@ Sources: [module.c](src/parser/module.c), [driver.c](src/driver/driver.c),
   claims of working c2mir JIT and zero-overhead direct syscalls until verified. The
   current syscall path calls libc, whose error convention differs from the
   documentation.
-- [ ] **G38 — Correct documentation output.** Preserve pointer depth and return
+- [x] **G38 — Correct documentation output.** Preserve pointer depth and return
   types, show all requested foreign entries, and remove example-file lookup
   fallbacks and silent result truncation.
 - [ ] **G39 — Add regression tests for the reproduced failures above.** Include
