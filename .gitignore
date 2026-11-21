@@ -1,0 +1,12 @@
+*.o
+*.ll
+emc
+prog
+zig-out/
+.zig-cache/
+examples/simple
+examples/fibonacci
+examples/showcase
+a.out
+*.tar.gz
+*.zip
