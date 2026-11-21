@@ -9,10 +9,14 @@
 #endif
 
 #include "module.h"
+#include "../common.h"
 #include "../lexer/lexer.h"
 #include "../utils/file.h"
+#include "ast.h"
 #include "parser.h"
 #include <libgen.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -186,6 +190,91 @@ char *module_resolve_path(const char *module_name, const char *source_path) {
     return NULL;
 }
 
+static bool is_import_call(const AstExpr *expr) {
+    if (!expr || expr->kind != EXPR_CALL) {
+        return false;
+    }
+
+    const AstExpr *callee = expr->call.callee;
+    if (!callee || callee->kind != EXPR_MEMBER || !callee->member.member ||
+        strcmp(callee->member.member, "add") != 0) {
+        return false;
+    }
+
+    const AstExpr *target = callee->member.target;
+    return target && target->kind == EXPR_IDENTIFIER && target->ident_name &&
+           (strcmp(target->ident_name, "mod") == 0 || strcmp(target->ident_name, "sub") == 0);
+}
+
+static bool expr_contains_import(const AstExpr *expr) {
+    if (!expr) {
+        return false;
+    }
+    if (is_import_call(expr)) {
+        return true;
+    }
+
+    switch (expr->kind) {
+    case EXPR_CALL:
+        if (expr_contains_import(expr->call.callee)) {
+            return true;
+        }
+        for (size_t i = 0; i < expr->call.arg_count; i++) {
+            if (expr_contains_import(expr->call.args[i])) {
+                return true;
+            }
+        }
+        return false;
+    case EXPR_MEMBER:
+        return expr_contains_import(expr->member.target);
+    case EXPR_PATH:
+        return expr_contains_import(expr->path.target);
+    case EXPR_BINARY:
+        return expr_contains_import(expr->binary.left) || expr_contains_import(expr->binary.right);
+    case EXPR_UNARY:
+        return expr_contains_import(expr->unary.operand);
+    default:
+        return false;
+    }
+}
+
+/* Inspect the entire conditional so imports cannot hide in nested expressions or branches.  */
+static bool stmt_contains_import(const AstStmt *stmt) {
+    if (!stmt) {
+        return false;
+    }
+
+    switch (stmt->kind) {
+    case STMT_VAR_DECL:
+        return expr_contains_import(stmt->var_decl.init_expr);
+    case STMT_ASSIGN:
+        return expr_contains_import(stmt->assign.target) || expr_contains_import(stmt->assign.value);
+    case STMT_MOVE:
+        return expr_contains_import(stmt->move.src_expr);
+    case STMT_RETURN:
+        return expr_contains_import(stmt->return_stmt.expr);
+    case STMT_EXPR:
+        return expr_contains_import(stmt->expr_stmt);
+    case STMT_IF:
+        if (expr_contains_import(stmt->if_stmt.cond)) {
+            return true;
+        }
+        for (size_t i = 0; i < stmt->if_stmt.then_count; i++) {
+            if (stmt_contains_import(stmt->if_stmt.then_stmts[i])) {
+                return true;
+            }
+        }
+        for (size_t i = 0; i < stmt->if_stmt.else_count; i++) {
+            if (stmt_contains_import(stmt->if_stmt.else_stmts[i])) {
+                return true;
+            }
+        }
+        return false;
+    default:
+        return false;
+    }
+}
+
 static bool resolve_imports_recursive(AstProgram *program, const char *source_path,
                                       LoadedModules *lm, char *err_msg, size_t err_sz) {
     if (!program) {
@@ -196,43 +285,34 @@ static bool resolve_imports_recursive(AstProgram *program, const char *source_pa
         AstBlock *block = program->blocks[b];
         for (size_t s = 0; s < block->stmt_count; s++) {
             AstStmt *stmt = block->stmts[s];
-            if (stmt->kind != STMT_EXPR || !stmt->expr_stmt || stmt->expr_stmt->kind != EXPR_CALL) {
+            if (stmt->kind == STMT_IF) {
+                if (stmt_contains_import(stmt)) {
+                    snprintf(err_msg, err_sz, "Adding a module based on the condition is prohibited");
+                    return false;
+                }
+                continue;
+            }
+            if (stmt->kind != STMT_EXPR || !is_import_call(stmt->expr_stmt)) {
                 continue;
             }
 
-            AstExpr *callee = stmt->expr_stmt->call.callee;
-            if (!callee || callee->kind != EXPR_MEMBER) {
-                continue;
-            }
-
-            const char *member = callee->member.member;
-            if (!member || strcmp(member, "add") != 0) {
-                continue;
-            }
-
-            AstExpr *target = callee->member.target;
-            if (!target || target->kind != EXPR_IDENTIFIER) {
-                continue;
-            }
-
-            const char *target_name = target->ident_name;
-            if (!target_name ||
-                (strcmp(target_name, "mod") != 0 && strcmp(target_name, "sub") != 0)) {
-                continue;
-            }
-
-            if (stmt->expr_stmt->call.arg_count == 0) {
-                continue;
+            const char *target_name = stmt->expr_stmt->call.callee->member.target->ident_name;
+            if (stmt->expr_stmt->call.arg_count != 1) {
+                snprintf(err_msg, err_sz, "%s.add requires exactly one module argument",
+                         target_name);
+                return false;
             }
 
             char mod_name[256];
             if (!module_expr_to_string(stmt->expr_stmt->call.args[0], mod_name, sizeof(mod_name))) {
-                continue;
+                snprintf(err_msg, err_sz, "Failed to express source module to string");
+                return false;
             }
 
             char *mod_file = module_resolve_path(mod_name, source_path);
             if (!mod_file) {
-                continue;
+                snprintf(err_msg, err_sz, "Failed to find module '%s'", mod_name);
+                return false;
             }
 
             if (is_module_loaded(lm, mod_file)) {

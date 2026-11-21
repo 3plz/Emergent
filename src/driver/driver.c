@@ -9,7 +9,11 @@
 #endif
 
 #include "driver.h"
+#include "../codegen/codegen.h"
+#include "../parser/ast.h"
 #include <errno.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

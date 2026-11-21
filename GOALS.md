@@ -99,7 +99,7 @@ Sources: [types.c](src/codegen/types.c), [ast.h](src/parser/ast.h).
 Sources: [module.c](src/parser/module.c), [driver.c](src/driver/driver.c),
 [main.c](src/main.c).
 
-- [ ] **G28 — Reject invalid or missing imports.** Missing modules currently
+- [x] **G28 — Reject invalid or missing imports.** Missing modules currently
   disappear silently. Additional import arguments are ignored, and imports inside
   conditionals are skipped.
 - [ ] **G29 — Implement explicit module dependencies and selective imports.**
