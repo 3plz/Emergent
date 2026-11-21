@@ -146,6 +146,8 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    int final_exit_code = 0;
+
     if (run_after) {
         fflush(stdout);
         char exec_path[1024];
@@ -156,18 +158,16 @@ int main(int argc, char **argv) {
         }
 
         char *run_args[] = {exec_path, NULL};
-        pid_t pid = fork();
-        if (pid == 0) {
-            execvp(exec_path, run_args);
-            _exit(127);
-        } else if (pid > 0) {
-            int status = 0;
-            waitpid(pid, &status, 0);
-            if (WIFEXITED(status)) {
-                int ret = WEXITSTATUS(status);
-                if (ret != 0) {
-                    printf("[Exit code: %d]\n", ret);
-                }
+        int run_exit = 0;
+        char run_err[512] = "";
+
+        if (!driver_run_process(exec_path, run_args, &run_exit, run_err, sizeof(run_err))) {
+            if (run_exit > 0) {
+                printf("[Exit code: %d]\n", run_exit);
+                final_exit_code = run_exit;
+            } else {
+                fprintf(stderr, "Execution error: %s\n", run_err);
+                final_exit_code = 1;
             }
         }
     } else {
@@ -177,5 +177,5 @@ int main(int argc, char **argv) {
     free(qbe_ir);
     ast_program_free(program);
     free(source);
-    return 0;
+    return final_exit_code;
 }

@@ -9,6 +9,7 @@
 #endif
 
 #include "driver.h"
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,7 +25,8 @@ bool driver_run_process(const char *file, char *const argv[], int *out_exit_code
     }
     if (pid == 0) {
         execvp(file, argv);
-        _exit(127);
+        int err = errno;
+        _exit(err = ENOENT ? 127 : 126);
     }
     int status = 0;
     if (waitpid(pid, &status, 0) < 0) {
