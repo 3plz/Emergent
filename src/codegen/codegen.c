@@ -79,6 +79,9 @@ static GenVal emit_to_bool(CodegenCtx *ctx, GenVal val) {
             }
             snprintf(out.repr, sizeof(out.repr), "%d", (d != 0.0) ? 1 : 0);
             return out;
+        } else if (val.repr[0] == '$') {
+            snprintf(out.repr, sizeof(out.repr), "1");
+            return out;
         } else {
             long long v = strtoll(val.repr, NULL, 0);
             snprintf(out.repr, sizeof(out.repr), "%d", (v != 0) ? 1 : 0);

@@ -20,7 +20,7 @@ Sources: [parser.c](src/parser/parser.c), [lexer.c](src/lexer/lexer.c),
   `signed char(-1)` currently fails `< 0`.
 - [ ] **G05 — Implement short-circuit evaluation.** `false && function()` currently
   executes the function; `true || function()` has the same underlying problem.
-- [ ] **G06 — Fix constant pointer truthiness.** `if ("hello")` currently evaluates
+- [x] **G06 — Fix constant pointer truthiness.** `if ("hello")` currently evaluates
   as false because a symbol address is parsed as an integer.
 - [ ] **G07 — Implement consistent numeric conversions.** Correct integer
   promotions and signed/unsigned arithmetic. The reproduced `i8(-1) < u8(1)`
