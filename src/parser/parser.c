@@ -893,7 +893,6 @@ static AstExternBlock *parse_extern_block(Parser *parser) {
         parser->lexer->current = raw_start;
         char *code = lexer_read_raw_until_submodule_or_eof(parser->lexer);
         advance(parser);
-        parser->had_error = false;
         ast_extern_block_set_code(eb, code);
         free(code);
     }
