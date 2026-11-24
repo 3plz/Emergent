@@ -69,6 +69,11 @@ static Token expect(Parser *parser, TokenType type, const char *message) {
 static void synchronize(Parser *parser) {
     parser->panic_mode = false;
 
+    if (parser->current.type == TOK_EOF) {
+        return;
+    }
+    advance(parser);
+
     while (parser->current.type != TOK_EOF) {
         if (parser->previous.type == TOK_SEMICOLON) {
             return;

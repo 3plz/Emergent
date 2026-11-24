@@ -10,7 +10,7 @@ Sources: [parser.c](src/parser/parser.c), [lexer.c](src/lexer/lexer.c),
 
 - [x] **G01 — Preserve parsing errors.** Parsing a foreign C block currently resets
   `had_error`, allowing previously reported syntax errors to compile successfully.
-- [ ] **G02 — Guarantee parser progress.** A stray `}` after `return 0;` currently
+- [x] **G02 — Guarantee parser progress.** A stray `}` after `return 0;` currently
   causes an infinite parsing loop.
 - [ ] **G03 — Separate semantic validation from code generation.** Validate
   unreachable statements too. A direct C call after `return` currently bypasses
