@@ -1,25 +1,18 @@
 /* Driver and command-line interface entry point for the Emergent compiler.
    Copyright (C) 2026 Emergent Compiler Authors.  */
 
-#ifndef _POSIX_C_SOURCE
-#define _POSIX_C_SOURCE 200809L
-#endif
-#ifndef _DEFAULT_SOURCE
-#define _DEFAULT_SOURCE
-#endif
-
 #include "codegen/codegen.h"
 #include "doc/doc_man.h"
 #include "driver/driver.h"
 #include "lexer/lexer.h"
+#include "parser/ast.h"
 #include "parser/module.h"
 #include "parser/parser.h"
 #include "utils/file.h"
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/wait.h>
-#include <unistd.h>
 
 static void print_usage(const char *prog_name) {
     printf("Emergent Compiler (emc)\n\n");
@@ -73,15 +66,26 @@ int main(int argc, char **argv) {
             dump_ast = true;
         } else if (strcmp(argv[i], "--dump-ir") == 0 || strcmp(argv[i], "--emit-qbe") == 0) {
             dump_ir = true;
-        } else if (strcmp(argv[i], "-o") == 0 && i + 1 < argc) {
+        } else if (strcmp(argv[i], "-o") == 0) {
+            if (i + 1 >= argc) {
+                fprintf(stderr, "Error: option '-o' requires an argument\n");
+                return 1;
+            }
             out_path = argv[++i];
-        } else if (argv[i][0] != '-') {
+        } else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
+            print_usage(argv[0]);
+            return 0;
+        } else if (argv[i][0] == '-') {
+            fprintf(stderr, "Error: unrecognized command-line option '%s'\n", argv[i]);
+            return 1;
+        } else {
             path = argv[i];
         }
     }
 
     if (!path) {
-        path = "references/hello.em";
+        fprintf(stderr, "Error: no source file specified\n");
+        return 1;
     }
 
     char *source = read_source_file(path);

@@ -299,6 +299,9 @@ int handle_man_command(int argc, char **argv) {
             if (!symbol) {
                 symbol = argv[i];
             }
+        } else {
+            fprintf(stderr, "Error: unrecognized command-line option '%s'\n", argv[i]);
+            return 1;
         }
     }
 

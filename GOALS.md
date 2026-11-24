@@ -117,7 +117,7 @@ Sources: [module.c](src/parser/module.c), [driver.c](src/driver/driver.c),
 - [ ] **G33 — Propagate execution failures.** `emc --run` currently returns
   success when the program exits with code `7`. Handle signals, failed execution,
   and interrupted waits.
-- [ ] **G34 — Validate command-line arguments.** Reject unknown flags, missing
+- [x] **G34 — Validate command-line arguments.** Reject unknown flags, missing
   option values, and missing source files instead of falling back to
   `references/hello.em`.
 - [ ] **G35 — Configure the toolchain explicitly.** Support tool paths, temporary
